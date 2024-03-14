@@ -121,8 +121,8 @@ exports.createStripeSession = catchAsync(async (req, res, next) => {
 		],
 		success_url: `${req.protocol}://${req.get('host')}/orders`,
 		cancel_url: `${req.protocol}://${req.get('host')}/carts`,
-		customer: req.user._id,
-		client_reference_id: cart._id,
+		customer: req.user._id.toString(),
+		client_reference_id: req.params.cartId,
 		customer_email: req.user.email,
 		metadata: req.body.shippingAddress,
 	})
@@ -130,7 +130,28 @@ exports.createStripeSession = catchAsync(async (req, res, next) => {
 	// send session as response
 	res.status(200).json({ status: 'success', data: session })
 })
-
+const createOnlineOrder = async function (session) {
+	const cart = await Cart.findById(session.client_reference_id)
+	const order = await Order.create({
+		user: session.customer,
+		items: cart.cartItem,
+		shippingAddress: session.metadata,
+		totalPrice: session.amount_total,
+		paymentMethod: 'card',
+		isPaid: true,
+		paidAt: Date.now(),
+	})
+	//2- decrease quantity and increase sold (product)
+	if (order) {
+		cart.cartItem.forEach(async (item) => {
+			await Product.findByIdAndUpdate(item.product, {
+				$inc: { quantity: -item.quantity, sold: item.quantity },
+			})
+		})
+		//3- clear cart for this user
+		await Cart.findByIdAndDelete(cart._id)
+	}
+}
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
 	const sig = req.headers['stripe-signature']
 	let event
@@ -144,12 +165,27 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
 		return res.status(400).send(`Webhook Error: ${err.message}`)
 	}
 	if (event.type === 'checkout.session.completed') {
-		console.log('order should created here')
 		console.log(event.data.object.amount_total) //total price
 		console.log(event.data.object.customer_email) //user email
 		console.log(event.data.object.metadata) //address
 		console.log(event.data.object.payment_method_types) //address
 		console.log(event.data.object.payment_status) //address
 		console.log(event.data.object.status) //address
+		console.log(event.data.object.client_reference_id) //cartId
+		console.log(event.data.object.customer) //customer id
+
+		createOnlineOrder(event.data.object)
+		res.status(200).json({
+			status: 'success',
+			received: true,
+		})
+		/*
+		20000
+		test1@gmail.com
+		{ postal: '1234', details: 'شارع الكنيسه', city: 'Damietta' }
+		[ 'card' ]
+		paid
+		complete
+		*/
 	}
 })
