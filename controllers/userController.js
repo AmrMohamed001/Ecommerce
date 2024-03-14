@@ -21,7 +21,6 @@ exports.resizeImage = catchAsync(async (req, res, next) => {
 ///////////////////////////////////////////////////////////
 
 exports.slugUser = (req, res, next) => {
-	console.log(slugify(req.body.name))
 	if (req.body.name) req.body.slug = slugify(req.body.name)
 	next()
 }

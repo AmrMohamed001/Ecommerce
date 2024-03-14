@@ -29,7 +29,11 @@ const handleCastIdError = (err) =>
 const handleDuplicationKey = (err) =>
 	new AppError(400, `Duplication in field : ${Object.keys(err.keyValue)}`)
 
-const handleValidationError = (err) => new AppError(400, err.errors.name)
+const handleValidationError = (err) => new AppError(400, err.message)
+const handleTokenError = () =>
+	new AppError(401, 'invalid token , please login again')
+const handleExpiredToken = () =>
+	new AppError(401, 'token expired, please login again')
 module.exports = (err, req, res, next) => {
 	err.statusCode = err.statusCode || 500
 	err.status = err.status || 500
@@ -43,6 +47,9 @@ module.exports = (err, req, res, next) => {
 		if (err.code === 11000) error = handleDuplicationKey(error)
 		// mongoose validation
 		if (err.name === 'ValidationError') error = handleValidationError(error)
+		//jwt
+		if (error.name === 'JsonWebTokenError') err = handleTokenError()
+		if (error.name === 'TokenExpiredError') err = handleExpiredToken()
 		sendErrProd(error, res)
 	}
 }

@@ -12,25 +12,15 @@ module.exports = class Email {
 	}
 
 	transporter() {
-		if (process.env.NODE_ENV === 'development') {
-			// sendGrip
-			return nodemailer.createTransport({
-				service: 'gmail',
-				host: 'smtp.gmail.com',
-				port: 587,
-				secure: false,
-				auth: {
-					user: 'amrmoha960@gmail.com',
-					pass: 'sdge hwwj ohwg mkln',
-				},
-			})
-		}
+		// sendGrip
 		return nodemailer.createTransport({
-			host: 'sandbox.smtp.mailtrap.io',
+			service: 'gmail',
+			host: 'smtp.gmail.com',
 			port: 587,
+			secure: false,
 			auth: {
-				user: '49595a5de3921f',
-				pass: '4c9e0642fa6a44',
+				user: 'amrmoha960@gmail.com',
+				pass: 'sdge hwwj ohwg mkln',
 			},
 		})
 	}

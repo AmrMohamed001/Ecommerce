@@ -2,9 +2,10 @@ const router = require('express').Router()
 const controller = require('../controllers/addressesController')
 const auth = require('../controllers/authController')
 
+router.use(auth.protect)
 router
 	.route('/')
-	.get(auth.protect, controller.getLoggedUserAddresses)
-	.post(auth.protect, controller.addAddressToUser)
-router.route('/:id').delete(auth.protect, controller.deleteAddressFromUser)
+	.get(controller.getLoggedUserAddresses)
+	.post(controller.addAddressToUser)
+router.route('/:id').delete(controller.deleteAddressFromUser)
 module.exports = router

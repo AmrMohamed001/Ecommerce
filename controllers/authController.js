@@ -7,8 +7,9 @@ const signToken = require('../utils/signToken')
 const User = require('../models/user')
 const AppError = require('../utils/AppError')
 const SendMail = require('../utils/sendMail')
+const { sanitizeUserLogging } = require('../utils/resSanitize')
 
-exports.signup = catchAsync(async (req, res) => {
+exports.signup = catchAsync(async (req, res, next) => {
 	const newUser = {
 		name: req.body.name,
 		email: req.body.email,
@@ -20,13 +21,18 @@ exports.signup = catchAsync(async (req, res) => {
 	const user = await User.create(newUser)
 	const token = signToken(user._id)
 	user.password = undefined
-	const mail = new SendMail(user)
-	await mail.sendWelcome()
+	try {
+		await new SendMail(user).sendWelcome()
+	} catch (err) {
+		console.log(err)
+		return next(new AppError(500, 'server error , try again'))
+	}
+
 	res.status(200).json({
 		status: 'success',
 		data: {
 			token,
-			user,
+			user: sanitizeUserLogging(user),
 		},
 	})
 })
@@ -47,7 +53,7 @@ exports.login = catchAsync(async (req, res, next) => {
 		status: 'success',
 		data: {
 			token,
-			user,
+			user: sanitizeUserLogging(user),
 		},
 	})
 })

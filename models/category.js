@@ -18,8 +18,8 @@ const schema = new mongoose.Schema(
 		timestamps: true,
 	}
 )
-schema.post('init', (doc) => {
+/* schema.post('init', (doc) => {
 	if (doc.image) doc.image = `${process.env.BASE_URL}/img/category/${doc.image}`
-})
+}) */
 const Category = mongoose.model('Category', schema)
 module.exports = Category

@@ -83,7 +83,7 @@ schema.pre(/^find/, function (next) {
 	}).populate('reviews')
 	next()
 })
-schema.post('init', (doc) => {
+/* schema.post('init', (doc) => {
 	if (doc.imageCover)
 		doc.imageCover = `${process.env.BASE_URL}/img/product/${doc.imageCover}`
 	if (doc.images) {
@@ -91,5 +91,5 @@ schema.post('init', (doc) => {
 			(img) => `${process.env.BASE_URL}/img/product/${img}`
 		)
 	}
-})
+}) */
 module.exports = mongoose.model('Product', schema)

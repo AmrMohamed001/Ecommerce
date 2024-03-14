@@ -2,9 +2,10 @@ const router = require('express').Router()
 const controller = require('../controllers/whishListController')
 const auth = require('../controllers/authController')
 
+router.use(auth.protect)
 router
 	.route('/')
-	.get(auth.protect, controller.getLoggedUserWhishList)
-	.post(auth.protect, controller.addProductToWhishList)
-router.route('/:id').delete(auth.protect, controller.deleteProductFromWhishList)
+	.get(controller.getLoggedUserWhishList)
+	.post(controller.addProductToWhishList)
+router.route('/:id').delete(controller.deleteProductFromWhishList)
 module.exports = router

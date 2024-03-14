@@ -15,6 +15,7 @@ router.patch('/update-password', auth.updatePassword)
 router.delete('/delete-me', controller.deleteMe)
 
 // for admin
+router.use(auth.allowTo('admin'))
 router
 	.route('/')
 	.get(controller.getAllUsers)

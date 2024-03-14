@@ -7,8 +7,10 @@ const auth = require('../controllers/authController')
 router.use('/:categoryId/sub-categories', subRouter)
 router
 	.route('/')
-	.get(auth.protect, auth.allowTo('admin'), controller.getAllCategories)
+	.get(controller.getAllCategories)
 	.post(
+		auth.protect,
+		auth.allowTo('admin'),
 		/*categoryValidations.validateAddCategory,*/ controller.uplaodCategoryImage,
 		controller.resizeImage,
 		controller.slugCategory,
@@ -20,6 +22,8 @@ router
 	.get(/*categoryValidations.validateGetUpDelCategory,*/ controller.getCategory)
 	.patch(
 		/*categoryValidations.validateGetUpDelCategory,*/
+		auth.protect,
+		auth.allowTo('admin'),
 		controller.uplaodCategoryImage,
 		controller.resizeImage,
 		controller.slugCategory,
@@ -27,6 +31,8 @@ router
 	)
 	.delete(
 		/*categoryValidations.validateGetUpDelCategory,*/
+		auth.protect,
+		auth.allowTo('admin'),
 		controller.deleteCategory
 	)
 

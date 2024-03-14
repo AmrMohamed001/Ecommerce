@@ -85,9 +85,9 @@ schema.pre(/^find/, function (next) {
 	this.find({ active: { $ne: false } })
 	next()
 })
-schema.post('init', (doc) => {
+/* schema.post('init', (doc) => {
 	if (doc.image) doc.image = `${process.env.BASE_URL}/img/user/${doc.image}`
-})
+}) */
 schema.methods.checkPasswords = async function (plain, hashed) {
 	return await bcryptjs.compare(plain, hashed)
 }

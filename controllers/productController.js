@@ -15,10 +15,9 @@ exports.uplaodProductImage = uploadMix([
 ])
 
 exports.resizeProductImages = catchAsync(async (req, res, next) => {
-	console.log(req.body)
-	// console.log(req.files)
+	if (!req.files) return next()
+	console.log(req.files)
 	if (req.files.imageCover) {
-		if (!req.file) return next()
 		const fileName = `product-${Date.now()}-${Math.round(Math.random() * 1e9)}-cover.jpeg`
 		await sharp(req.files.imageCover[0].buffer)
 			.resize(2000, 1333)
@@ -37,7 +36,7 @@ exports.resizeProductImages = catchAsync(async (req, res, next) => {
 					.resize(600, 600)
 					.toFormat('jpeg')
 					.jpeg({ quality: 80 })
-					.toFile(`./public/imgs/productImages/${fileName}`)
+					.toFile(`./public/img/product/${fileName}`)
 				req.body.images.push(fileName)
 			})
 		)
@@ -84,7 +83,6 @@ exports.validateProductInStock = async (req, res, next) => {
 	if (!product)
 		next(new AppError(404, `No product with this id :${req.params.id}`))
 	if (product.quantity > 0) return next()
-	console.log(product.quantity)
 	product.stock = false
 	product.quantity = 0
 	await product.save()
