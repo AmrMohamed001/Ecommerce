@@ -145,5 +145,11 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
 	}
 	if (event.type === 'checkout.session.completed') {
 		console.log('order should created here')
+		console.log(event.data.amount_total) //total price
+		console.log(event.data.customer_email) //user email
+		console.log(event.data.metadata) //address
+		console.log(event.data.payment_method_types) //address
+		console.log(event.data.payment_status) //address
+		console.log(event.data.status) //address
 	}
 })
