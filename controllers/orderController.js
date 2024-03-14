@@ -1,6 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET)
 const Cart = require('../models/cart')
 const Order = require('../models/order')
+const User = require('../models/user')
 const Product = require('../models/product')
 const AppError = require('../utils/AppError')
 const catchAsync = require('../utils/catchAsync')
@@ -121,7 +122,7 @@ exports.createStripeSession = catchAsync(async (req, res, next) => {
 		],
 		success_url: `${req.protocol}://${req.get('host')}/orders`,
 		cancel_url: `${req.protocol}://${req.get('host')}/carts`,
-		customer: req.user._id.toString(),
+		// customer: req.user._id.toString(),
 		client_reference_id: req.params.cartId,
 		customer_email: req.user.email,
 		metadata: req.body.shippingAddress,
@@ -131,9 +132,10 @@ exports.createStripeSession = catchAsync(async (req, res, next) => {
 	res.status(200).json({ status: 'success', data: session })
 })
 const createOnlineOrder = async function (session) {
+	const user = await User.findOne({ email: session.customer_email })
 	const cart = await Cart.findById(session.client_reference_id)
 	const order = await Order.create({
-		user: session.customer,
+		user,
 		items: cart.cartItem,
 		shippingAddress: session.metadata,
 		totalPrice: session.amount_total,
@@ -164,28 +166,19 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
 	} catch (err) {
 		return res.status(400).send(`Webhook Error: ${err.message}`)
 	}
-	if (event.type === 'checkout.session.completed') {
-		console.log(event.data.object.amount_total) //total price
-		console.log(event.data.object.customer_email) //user email
-		console.log(event.data.object.metadata) //address
-		console.log(event.data.object.payment_method_types) //address
-		console.log(event.data.object.payment_status) //address
-		console.log(event.data.object.status) //address
-		console.log(event.data.object.client_reference_id) //cartId
-		console.log(event.data.object.customer) //customer id
-
+	if (
+		event.type === 'checkout.session.completed' &&
+		event.data.object.status === 'complete'
+	) {
+		console.log(`amount_total:${event.data.object.amount_total}`) //total price
+		console.log(`customer_email:${event.data.object.customer_email}`) //user email
+		console.log(`${event.data.object.metadata}`) //address
+		console.log(`status:${event.data.object.status}`) //address
+		console.log(`cart_id:${event.data.object.client_reference_id}`) //cartId
 		createOnlineOrder(event.data.object)
 		res.status(200).json({
 			status: 'success',
 			received: true,
 		})
-		/*
-		20000
-		test1@gmail.com
-		{ postal: '1234', details: 'شارع الكنيسه', city: 'Damietta' }
-		[ 'card' ]
-		paid
-		complete
-		*/
 	}
 })
