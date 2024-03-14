@@ -1,0 +1,6 @@
+.idea
+.vscode
+/node_modules
+.env
+.eslintrc.json
+/schema.png

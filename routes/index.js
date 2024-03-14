@@ -1,0 +1,32 @@
+const categoryRoutes = require('./categoryRouter')
+const subCategoryRoutes = require('./subCategoryRouter')
+const brandRoutes = require('./brandRouter')
+const productRoutes = require('./productRouter')
+const userRoutes = require('./userRouter')
+const authRoutes = require('./authRouter')
+const reviewRoutes = require('./reviewRouter')
+const whishListRoutes = require('./whishListRouter')
+const addressRoutes = require('./addressRouter')
+const couponRoutes = require('./couponRouter')
+const cartRoutes = require('./cartRouter')
+const orderRoutes = require('./orderRouter')
+const AppError = require('../utils/AppError')
+///////////////////////////////////////////////////////////
+const mounting = (app) => {
+	app.use('/api/v1/categories', categoryRoutes)
+	app.use('/api/v1/sub-categories', subCategoryRoutes)
+	app.use('/api/v1/brands', brandRoutes)
+	app.use('/api/v1/products', productRoutes)
+	app.use('/api/v1/users', userRoutes)
+	app.use('/api/v1/auth', authRoutes)
+	app.use('/api/v1/reviews', reviewRoutes)
+	app.use('/api/v1/whishLists', whishListRoutes)
+	app.use('/api/v1/address', addressRoutes)
+	app.use('/api/v1/coupons', couponRoutes)
+	app.use('/api/v1/carts', cartRoutes)
+	app.use('/api/v1/orders', orderRoutes)
+	app.all('*', (req, res, next) => {
+		next(new AppError(404, 'this route is not defined'))
+	})
+}
+module.exports = mounting
