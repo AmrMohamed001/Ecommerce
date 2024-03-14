@@ -138,7 +138,7 @@ const createOnlineOrder = async function (session) {
 		user,
 		items: cart.cartItem,
 		shippingAddress: session.metadata,
-		totalPrice: session.amount_total,
+		totalPrice: session.amount_total / 100,
 		paymentMethod: 'card',
 		isPaid: true,
 		paidAt: Date.now(),
@@ -170,11 +170,6 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
 		event.type === 'checkout.session.completed' &&
 		event.data.object.status === 'complete'
 	) {
-		console.log(`amount_total:${event.data.object.amount_total}`) //total price
-		console.log(`customer_email:${event.data.object.customer_email}`) //user email
-		console.log(`${event.data.object.metadata}`) //address
-		console.log(`status:${event.data.object.status}`) //address
-		console.log(`cart_id:${event.data.object.client_reference_id}`) //cartId
 		createOnlineOrder(event.data.object)
 		res.status(200).json({
 			status: 'success',
