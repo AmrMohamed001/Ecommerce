@@ -5,7 +5,7 @@ const controller = require('../controllers/productController')
 router.use('/:productId/reviews', reviewRouter)
 router
 	.route('/')
-	.get(controller.validateProductInStock, controller.getAllProducts)
+	.get(controller.getAllProducts)
 	.post(
 		controller.uplaodProductImage,
 		controller.resizeProductImages,
