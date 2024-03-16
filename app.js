@@ -24,13 +24,16 @@ app.use(express.json({ limit: '100kb' }))
 app.use(express.static(path.join(__dirname, 'public')))
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'))
 ////////////////////////
+app.set('trust proxy', true)
 app.use(sanitize())
 app.use(xss())
+const keyGenerator = (req) => req.ip
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	limit: 100,
 	standardHeaders: 'draft-7',
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+	keyGenerator,
 	message: 'too many requests from this ip .. try again after 15 minute',
 })
 // Apply the rate limiting middleware to all requests.
